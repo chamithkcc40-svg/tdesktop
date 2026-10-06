@@ -39,6 +39,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/wrap/fade_wrap.h"
 #include "ui/wrap/slide_wrap.h"
 #include "ui/wrap/vertical_layout.h"
+#include "ui/effects/liquid_glass/liquid_glass_widget.h"
 #include "ui/effects/radial_animation.h"
 #include "ui/effects/ripple_animation.h"
 #include "ui/effects/slide_animation.h"
@@ -401,6 +402,7 @@ Widget::Widget(
 , _narrowWidth(st::defaultDialogRow.padding.left()
 	+ st::defaultDialogRow.photoSize
 	+ st::defaultDialogRow.padding.left())
+, _headerGlass(this, this)
 , _searchControls(this)
 , _mainMenu({
 	.toggle = object_ptr<Ui::IconButton>(
@@ -439,6 +441,12 @@ Widget::Widget(
 		_stories ? OverscrollType::Virtual : OverscrollType::Real,
 		OverscrollType::Real);
 	_scroll->setOverscrollPullDistances(st::dialogsStoriesFull.height, 0);
+
+	_headerGlass->setRadius(0.f);
+	_headerGlass->setThickness(8.f);
+	_headerGlass->setIntensity(0.5f);
+	_headerGlass->lower();
+
 	_innerList = _scroll->setOwnedWidget(
 		object_ptr<Ui::VerticalLayout>(this));
 	_inner = _innerList->add(object_ptr<InnerWidget>(
@@ -4557,6 +4565,8 @@ void Widget::updateControlsGeometry() {
 		- filterRight;
 	const auto filterAreaHeight = st::topBarHeight;
 	_searchControls->setGeometry(0, filterAreaTop, ratiow, filterAreaHeight);
+	_headerGlass->setGeometry(_searchControls->geometry());
+	_headerGlass->lower();
 	if (_subsectionTopBar) {
 		_subsectionTopBar->setGeometryWithNarrowRatio(
 			_searchControls->geometry(),
@@ -4892,7 +4902,12 @@ void Widget::paintEvent(QPaintEvent *e) {
 		_childListShown.current());
 	auto above = QRect(0, 0, width(), _scroll->y());
 	if (above.intersects(r)) {
-		p.fillRect(above.intersected(r), bg);
+		// Leave the header area unfilled so the liquid glass shows through.
+		const auto region = QRegion(above.intersected(r))
+			- QRegion(_headerGlass->geometry());
+		for (const auto &rect : region) {
+			p.fillRect(rect, bg);
+		}
 	}
 
 	auto belowTop = _scroll->y() + _scroll->height();
