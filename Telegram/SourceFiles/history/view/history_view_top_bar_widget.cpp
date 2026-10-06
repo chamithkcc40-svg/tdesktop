@@ -31,6 +31,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/widgets/popup_menu.h"
 #include "ui/widgets/shadow.h"
 #include "ui/widgets/menu/menu_add_action_callback_factory.h"
+#include "ui/effects/liquid_glass/liquid_glass_widget.h"
 #include "ui/effects/radial_animation.h"
 #include "ui/boxes/report_box_graphics.h" // Ui::ReportReason
 #include "ui/text/text.h"
@@ -117,6 +118,7 @@ TopBarWidget::TopBarWidget(
 : RpWidget(parent)
 , _controller(controller)
 , _primaryWindow(controller->isPrimary())
+, _glass(this, parent)
 , _clear(this, tr::lng_selected_clear(), st::topBarClearButton)
 , _forward(this, tr::lng_selected_forward(), st::defaultActiveButton)
 , _sendNow(this, tr::lng_selected_send_now(), st::defaultActiveButton)
@@ -131,6 +133,11 @@ TopBarWidget::TopBarWidget(
 , _titlePeerText(st::windowMinWidth / 3)
 , _onlineUpdater([=] { updateOnlineDisplay(); }) {
 	setAttribute(Qt::WA_OpaquePaintEvent);
+
+	_glass->setRadius(0.f);
+	_glass->setThickness(8.f);
+	_glass->setIntensity(0.5f);
+	_glass->lower();
 
 	_clear->setTextTransform(Ui::RoundButtonTextTransform::ToUpper);
 	_forward->setTextTransform(Ui::RoundButtonTextTransform::ToUpper);
@@ -1099,6 +1106,7 @@ void TopBarWidget::refreshInfoButton() {
 }
 
 void TopBarWidget::resizeEvent(QResizeEvent *e) {
+	_glass->setGeometry(rect());
 	updateSearchVisibility();
 	updateControlsGeometry();
 }
