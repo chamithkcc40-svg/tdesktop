@@ -88,6 +88,7 @@ struct ChatPaintHighlight;
 class ChatStyle;
 template <typename Widget>
 class SlideWrap;
+class LiquidGlassWidget;
 } // namespace Ui
 
 namespace Ui::Emoji {
@@ -953,6 +954,7 @@ private:
 	std::unique_ptr<HistoryView::Controls::AiTooltipManager> _sendAsFileTooltipManager;
 	std::shared_ptr<Ui::ChatStyle> _fieldChatStyle;
 	bool _cmdStartShown = false;
+	object_ptr<Ui::LiquidGlassWidget> _composeGlass;
 	object_ptr<Ui::InputField> _field;
 	std::unique_ptr<HistoryView::Controls::RichDraftPreview> _richDraftPreview;
 	base::unique_qptr<Ui::RpWidget> _fieldDisabled;
