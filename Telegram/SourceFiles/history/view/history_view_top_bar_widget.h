@@ -33,6 +33,7 @@ class UnreadBadge;
 class InputField;
 class CrossButton;
 class InfiniteRadialAnimation;
+class LiquidGlassWidget;
 template <typename Widget>
 class FadeWrapScaled;
 } // namespace Ui
@@ -232,6 +233,7 @@ private:
 	Ui::Animations::Simple _selectedShown;
 	Ui::Animations::Simple _searchShown;
 
+	object_ptr<Ui::LiquidGlassWidget> _glass;
 	object_ptr<Ui::RoundButton> _clear;
 	object_ptr<Ui::RoundButton> _forward, _sendNow, _delete;
 	object_ptr<Ui::InputField> _searchField = { nullptr };
