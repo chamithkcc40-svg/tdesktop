@@ -89,4 +89,7 @@
     <file alias="default_shortcuts-custom.json">../../default_shortcuts-custom.json</file>
     <file alias="org.telegram.desktop.desktop">../../../../lib/xdg/org.telegram.desktop.desktop</file>
   </qresource>
+  <qresource prefix="/ui/effects/liquid_glass">
+    <file alias="liquid_glass.frag">../../../SourceFiles/ui/effects/liquid_glass/liquid_glass.frag</file>
+  </qresource>
 </RCC>
