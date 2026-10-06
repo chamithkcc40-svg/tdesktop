@@ -14,6 +14,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/ui_utility.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QtGlobal>
 #include <QtGui/QLinearGradient>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QPainter>
@@ -72,6 +73,13 @@ LiquidGlassWidget::LiquidGlassWidget(QWidget *parent, QWidget *background)
 , _background(background) {
 	setAttribute(Qt::WA_TranslucentBackground);
 	setUpdateBehavior(QOpenGLWidget::NoPartialUpdate);
+
+	static auto counter = 0;
+	const auto index = counter++;
+	const auto mask = qEnvironmentVariableIntValue("LIQUID_GLASS_MASK");
+	if (!(mask & (1 << index))) {
+		hide();
+	}
 }
 
 LiquidGlassWidget::~LiquidGlassWidget() {
