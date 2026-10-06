@@ -59,6 +59,7 @@ class FadeWrapScaled;
 template <typename Widget>
 class SlideWrap;
 class VerticalLayout;
+class LiquidGlassWidget;
 } // namespace Ui
 
 namespace Window {
@@ -332,6 +333,7 @@ private:
 
 	std::unique_ptr<Ui::AbstractButton> _frozenAccountBar;
 
+	object_ptr<Ui::LiquidGlassWidget> _headerGlass;
 	object_ptr<Ui::RpWidget> _searchControls;
 	object_ptr<HistoryView::TopBarWidget> _subsectionTopBar = { nullptr };
 	struct {
