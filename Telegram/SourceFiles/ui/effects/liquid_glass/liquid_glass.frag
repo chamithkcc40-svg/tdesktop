@@ -1,3 +1,4 @@
+// build trigger
 // Liquid Glass effect fragment shader.
 //
 // Ported to GLSL (Qt OpenGL) from the Android AGSL implementation
