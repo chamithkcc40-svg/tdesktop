@@ -10,6 +10,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include <QtCore/QPointer>
 #include <QtGui/QColor>
 #include <QtGui/QOpenGLFunctions>
+#include <QtGui/QVector2D>
+#include <QtGui/QVector4D>
 
 #include <QOpenGLBuffer>
 #include <QOpenGLWidget>
