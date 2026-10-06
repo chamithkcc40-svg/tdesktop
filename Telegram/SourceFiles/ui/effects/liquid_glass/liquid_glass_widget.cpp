@@ -14,7 +14,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/ui_utility.h"
 
 #include <QtCore/QFile>
+#include <QtGui/QLinearGradient>
 #include <QtGui/QOpenGLContext>
+#include <QtGui/QPainter>
 #include <QtGui/QtEvents>
 
 #include <QOpenGLShaderProgram>
@@ -206,29 +208,21 @@ void LiquidGlassWidget::ensureBackdrop() {
 	}
 	_backdropDirty = false;
 
-	const auto background = _background.data();
-	if (!background || size().isEmpty()) {
+	// Debug safe mode: do not grab or touch the background widget, use a
+	// synthetic vertical gradient as the backdrop instead.
+	if (size().isEmpty()) {
 		_backdrop = QImage();
 		return;
 	}
-	const auto behind = QRect(mapTo(background, QPoint()), size());
-
-	// Grab the pixels behind this widget and blur them on the CPU, the
-	// shader then only refracts the already blurred backdrop.
-	const auto wasHidden = !isHidden();
-	if (wasHidden) {
-		// Avoid grabbing our own (stale) pixels into the backdrop.
-		setAttribute(Qt::WA_WState_Hidden, true);
-	}
-	auto grabbed = GrabWidgetToImage(background, behind);
-	if (wasHidden) {
-		setAttribute(Qt::WA_WState_Hidden, false);
-	}
-
-	auto blurred = Images::BlurLargeImage(std::move(grabbed), _blurRadius);
-	if (blurred.format() != QImage::Format_ARGB32_Premultiplied) {
-		blurred = std::move(blurred).convertToFormat(
-			QImage::Format_ARGB32_Premultiplied);
+	auto blurred = QImage(
+		size() * devicePixelRatio(),
+		QImage::Format_ARGB32_Premultiplied);
+	{
+		auto gradient = QLinearGradient(0., 0., 0., blurred.height());
+		gradient.setColorAt(0., QColor(70, 90, 140));
+		gradient.setColorAt(1., QColor(20, 25, 40));
+		auto p = QPainter(&blurred);
+		p.fillRect(blurred.rect(), gradient);
 	}
 	if constexpr (Ui::GL::kSwizzleRedBlue) {
 		blurred = std::move(blurred).rgbSwapped();
