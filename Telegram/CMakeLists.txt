@@ -2067,6 +2067,8 @@ PRIVATE
     ui/effects/credits_graphics.h
     ui/effects/emoji_fly_animation.cpp
     ui/effects/emoji_fly_animation.h
+    ui/effects/liquid_glass/liquid_glass_widget.cpp
+    ui/effects/liquid_glass/liquid_glass_widget.h
     ui/effects/message_sending_animation_common.h
     ui/effects/message_sending_animation_controller.cpp
     ui/effects/message_sending_animation_controller.h
