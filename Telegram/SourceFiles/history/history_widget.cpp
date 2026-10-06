@@ -44,6 +44,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "ui/widgets/inner_dropdown.h"
 #include "ui/widgets/dropdown_menu.h"
 #include "ui/widgets/labels.h"
+#include "ui/effects/liquid_glass/liquid_glass_widget.h"
 #include "ui/effects/ripple_animation.h"
 #include "ui/effects/message_sending_animation_controller.h"
 #include "ui/text/format_values.h"
@@ -328,6 +329,7 @@ HistoryWidget::HistoryWidget(
 	_send,
 	st::historySendSize.height()))
 , _forwardPanel(std::make_unique<ForwardPanel>([=] { updateField(); }))
+, _composeGlass(this, this)
 , _field(
 	this,
 	st::historyComposeField,
@@ -375,6 +377,11 @@ HistoryWidget::HistoryWidget(
 , _topShadow(this) {
 	setAcceptDrops(true);
 	setVisualTabOrder(true);
+
+	_composeGlass->setRadius(0.f);
+	_composeGlass->setThickness(8.f);
+	_composeGlass->setIntensity(0.5f);
+	_composeGlass->lower();
 
 	// The controls inside these are created in an order of their own - the
 	// top bar's selection buttons start with the one placed last, the bars
@@ -8188,6 +8195,23 @@ void HistoryWidget::updateControlsGeometry() {
 
 	updateFieldSize();
 
+	{
+		// Keep the liquid glass behind the same area drawField() covers.
+		auto backy = _field->y() - st::historySendPadding;
+		auto backh = fieldHeight() + 2 * st::historySendPadding;
+		if (_editMsgId
+			|| _replyTo
+			|| readyToForward()
+			|| _kbReplyTo
+			|| _previewDrawPreview
+			|| _suggestOptions) {
+			backy -= st::historyReplyHeight;
+			backh += st::historyReplyHeight;
+		}
+		_composeGlass->setGeometry(myrtlrect(0, backy, width, backh));
+		_composeGlass->lower();
+	}
+
 	_cornerButtons.updatePositions();
 	_pullToNext->updateGeometry();
 
@@ -11142,7 +11166,6 @@ void HistoryWidget::drawField(Painter &p, const QRect &rect) {
 	}
 	p.setInactive(
 		controller()->isGifPausedAtLeastFor(Window::GifPauseReason::Any));
-	p.fillRect(myrtlrect(0, backy, width(), backh), st::historyReplyBg);
 
 	const auto media = (!_previewDrawPreview && drawMsgText)
 		? drawMsgText->media()
