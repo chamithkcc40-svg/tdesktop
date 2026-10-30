@@ -1,0 +1,71 @@
+
+name: Liquid Glass Lightweight Checks
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "arena/**"
+
+permissions:
+  contents: read
+
+jobs:
+  source-checks:
+    name: Liquid Glass Source Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 1
+
+      - name: Check required source files
+        shell: bash
+        run: |
+          files=(
+            "Telegram/SourceFiles/ui/glass/glass_option.h"
+            "Telegram/SourceFiles/ui/glass/glass_option.cpp"
+            "Telegram/SourceFiles/ui/glass/glass_policy.h"
+            "Telegram/SourceFiles/ui/glass/glass_policy.cpp"
+            "Telegram/SourceFiles/ui/glass/glass_tokens.h"
+            "Telegram/SourceFiles/ui/glass/glass_tokens.cpp"
+            "Telegram/SourceFiles/ui/glass/glass_surface.h"
+            "Telegram/SourceFiles/ui/glass/glass_surface.cpp"
+            "Telegram/SourceFiles/platform/platform_glass_capabilities.h"
+          )
+
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "::error::Missing file: $file"
+              exit 1
+            fi
+            echo "Found: $file"
+          done
+
+      - name: Check whitespace errors
+        run: git diff --check HEAD
+
+      - name: Check conflict markers
+        shell: bash
+        run: |
+          if git grep -n -E '^(<<<<<<< |=======|>>>>>>> )' -- \
+            Telegram/SourceFiles/ui/glass \
+            Telegram/SourceFiles/platform/platform_glass_capabilities.h; then
+            echo "::error::Conflict markers detected"
+            exit 1
+          fi
+
+      - name: Check WP0-WP2 integration references
+        shell: bash
+        run: |
+          grep -q "liquid-glass" Telegram/SourceFiles/settings/settings_experimental.cpp
+          grep -q "Glass" Telegram/SourceFiles/ui/glass/glass_policy.cpp
+          grep -q "Glass" Telegram/SourceFiles/window/window_filters_menu.cpp
+          echo "Basic integration references found."
+
+      - name: Report
+        run: echo "Liquid Glass lightweight source checks passed."
